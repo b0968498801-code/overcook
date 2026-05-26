@@ -1,0 +1,15 @@
+overcooked.cache/
+overcooked.hw/
+overcooked.runs/
+
+*.jou
+*.log
+*.str
+*.wdf
+*.wpc
+*.bit
+*.ltx
+*.dcp
+*.rpt
+*.wdb
+*.vcd
