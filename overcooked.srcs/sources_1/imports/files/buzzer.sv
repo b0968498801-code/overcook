@@ -6,7 +6,6 @@
 //   serve success   -> rising success sound
 //   last 5 seconds  -> warning double beep
 //   game over       -> descending ending sound
-// 幹你媽逼
 module buzzer (
     input  logic        clk,          // 100MHz
     input  logic        rst,
