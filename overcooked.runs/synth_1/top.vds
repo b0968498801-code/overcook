@@ -815,3 +815,259 @@ WARNING: [Synth 8-6014] Unused sequential element spawn_cnt_reg was removed.  [C
 WARNING: [Synth 8-6014] Unused sequential element refresh_cnt_reg was removed.  [C:/Users/user/OneDrive/GitHub/overcook/overcook/overcooked.srcs/sources_1/imports/files/seven_seg.sv:19]
 INFO: [Synth 8-5546] ROM "ms_tick" won't be mapped to RAM because it is too sparse
 WARNING: [Synth 8-6014] Unused sequential element led_cnt_reg was removed.  [C:/Users/user/OneDrive/GitHub/overcook/overcook/overcooked.srcs/sources_1/imports/files/top.sv:271]
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (i_1/i_24/\u_orders/spawn_cnt_reg[3] )
+INFO: [Synth 8-3886] merging instance 'i_1/u_stations/belt_item_reg[1]' (FDCE) to 'i_1/u_stations/belt_item_reg[2]'
+INFO: [Synth 8-3886] merging instance 'i_1/u_stations/belt_item_reg[2]' (FDCE) to 'i_1/u_stations/belt_item_reg[3]'
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:04:10 ; elapsed = 00:04:15 . Memory (MB): peak = 1682.734 ; gain = 1439.113
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP and Shift Register Reporting
+---------------------------------------------------------------------------------
+
+ROM:
++------------------+-----------------------+---------------+----------------+
+|Module Name       | RTL Object            | Depth x Width | Implemented As | 
++------------------+-----------------------+---------------+----------------+
+|player_sprite_rom | p_0_out               | 4096x12       | LUT            | 
+|player_sprite_rom | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|renderer          | item_color1           | 32x12         | LUT            | 
+|renderer          | item_color0           | 32x12         | LUT            | 
+|renderer          | food_sprite_for_item  | 32x5          | LUT            | 
+|renderer          | item_color            | 32x12         | LUT            | 
+|renderer          | food_sprite_for_item0 | 32x5          | LUT            | 
+|renderer          | food_sprite_for_item1 | 32x5          | LUT            | 
+|renderer          | food_sprite_for_item2 | 32x5          | LUT            | 
+|renderer          | food_sprite_for_item3 | 32x5          | LUT            | 
+|renderer          | food_sprite_for_item4 | 32x5          | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|food_sprite_rom   | p_0_out               | 4096x12       | LUT            | 
+|player_sprite_rom | p_0_out               | 4096x12       | LUT            | 
+|player_sprite_rom | p_0_out               | 4096x12       | LUT            | 
+|top               | food_sprite_for_item  | 32x5          | LUT            | 
+|top               | food_sprite_for_item0 | 32x5          | LUT            | 
+|top               | food_sprite_for_item1 | 32x5          | LUT            | 
+|top               | food_sprite_for_item2 | 32x5          | LUT            | 
+|top               | food_sprite_for_item3 | 32x5          | LUT            | 
+|top               | food_sprite_for_item4 | 32x5          | LUT            | 
+|top               | item_color1           | 32x12         | LUT            | 
+|top               | item_color0           | 32x12         | LUT            | 
+|top               | item_color            | 32x12         | LUT            | 
++------------------+-----------------------+---------------+----------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP and Shift Register Reporting
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++------+-------------------+------------+----------+
+|      |RTL Partition      |Replication |Instances |
++------+-------------------+------------+----------+
+|1     |food_sprite_rom    |           1|      1601|
+|2     |renderer__GC0      |           1|      3566|
+|3     |top__GC0           |           1|      5016|
+|4     |food_sprite_rom__1 |           1|     19027|
++------+-------------------+------------+----------+
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:04:20 ; elapsed = 00:04:26 . Memory (MB): peak = 1781.391 ; gain = 1537.770
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:04:23 ; elapsed = 00:04:29 . Memory (MB): peak = 1817.145 ; gain = 1573.523
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++------+-------------------+------------+----------+
+|      |RTL Partition      |Replication |Instances |
++------+-------------------+------------+----------+
+|1     |food_sprite_rom    |           1|      1601|
+|2     |renderer__GC0      |           1|      3563|
+|3     |top__GC0           |           1|      5022|
+|4     |food_sprite_rom__1 |           1|     19027|
++------+-------------------+------------+----------+
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:04:38 ; elapsed = 00:04:44 . Memory (MB): peak = 1819.285 ; gain = 1575.664
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:04:40 ; elapsed = 00:04:46 . Memory (MB): peak = 1819.285 ; gain = 1575.664
+---------------------------------------------------------------------------------
+
+Report Check Netlist: 
++------+------------------+-------+---------+-------+------------------+
+|      |Item              |Errors |Warnings |Status |Description       |
++------+------------------+-------+---------+-------+------------------+
+|1     |multi_driven_nets |      0|        0|Passed |Multi driven nets |
++------+------------------+-------+---------+-------+------------------+
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:04:40 ; elapsed = 00:04:46 . Memory (MB): peak = 1819.285 ; gain = 1575.664
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:04:43 ; elapsed = 00:04:50 . Memory (MB): peak = 1819.285 ; gain = 1575.664
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:05:08 ; elapsed = 00:05:15 . Memory (MB): peak = 1819.285 ; gain = 1575.664
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:05:09 ; elapsed = 00:05:15 . Memory (MB): peak = 1819.285 ; gain = 1575.664
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:05:09 ; elapsed = 00:05:16 . Memory (MB): peak = 1819.285 ; gain = 1575.664
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+-------+------+
+|      |Cell   |Count |
++------+-------+------+
+|1     |BUFG   |     1|
+|2     |CARRY4 |    89|
+|3     |LUT1   |    20|
+|4     |LUT2   |   300|
+|5     |LUT3   |   262|
+|6     |LUT4   |   441|
+|7     |LUT5   |  1946|
+|8     |LUT6   | 10476|
+|9     |MUXF7  |  4102|
+|10    |MUXF8  |  1198|
+|11    |FDCE   |   502|
+|12    |FDPE   |    23|
+|13    |IBUF   |     8|
+|14    |OBUF   |    42|
++------+-------+------+
+
+Report Instance Areas: 
++------+-------------------+--------------------+------+
+|      |Instance           |Module              |Cells |
++------+-------------------+--------------------+------+
+|1     |top                |                    | 19410|
+|2     |  u_7seg           |seven_seg           |    30|
+|3     |  u_buzzer         |buzzer              |   328|
+|4     |  u_keys           |key_state           |    16|
+|5     |  u_orders         |order_manager       |   121|
+|6     |  u_p1             |player_controller   |   279|
+|7     |  u_p2             |player_controller_0 |   266|
+|8     |  u_ps2            |ps2_keyboard        |    87|
+|9     |  u_render         |renderer            |  9117|
+|10    |    u_food_overlay |food_sprite_rom     |   192|
+|11    |    u_food_sprites |food_sprite_rom_1   |  8187|
+|12    |  u_score          |score_manager       |    77|
+|13    |  u_stations       |station_controller  |  7750|
+|14    |  u_timer          |game_timer          |   129|
+|15    |  u_vga            |vga_controller      |  1121|
++------+-------------------+--------------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:05:09 ; elapsed = 00:05:16 . Memory (MB): peak = 1819.285 ; gain = 1575.664
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 12 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:04:53 ; elapsed = 00:05:09 . Memory (MB): peak = 1819.285 ; gain = 1298.305
+Synthesis Optimization Complete : Time (s): cpu = 00:05:09 ; elapsed = 00:05:16 . Memory (MB): peak = 1819.285 ; gain = 1575.664
+INFO: [Project 1-571] Translating synthesized netlist
+INFO: [Netlist 29-17] Analyzing 5397 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+INFO: [Common 17-83] Releasing license: Synthesis
+234 Infos, 50 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:05:15 ; elapsed = 00:05:23 . Memory (MB): peak = 1819.285 ; gain = 1588.582
+INFO: [Common 17-1381] The checkpoint 'C:/Users/user/OneDrive/GitHub/overcook/overcook/overcooked.runs/synth_1/top.dcp' has been generated.
+INFO: [runtcl-4] Executing : report_utilization -file top_utilization_synth.rpt -pb top_utilization_synth.pb
+report_utilization: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.094 . Memory (MB): peak = 1819.285 ; gain = 0.000
+INFO: [Common 17-206] Exiting Vivado at Thu May 28 01:19:36 2026...
