@@ -1,7 +1,7 @@
 // Clock Divider: 100MHz -> 25MHz
 // Basys3 onboard clock is 100MHz
 // Divide by 4 to get 25MHz for VGA pixel clock
-
+//333
 module clk_divider (
     input  logic clk_100m,
     input  logic rst,
