@@ -6,6 +6,7 @@
 //   8=cooked beef, 9=chopped lettuce, 10=cooked noodle, 11=cooked egg, 12=cooked rice, 13=cooked pork
 //   14=burger, 15=soup noodle, 16=rice bowl, 17=chopped beef, 18=chopped pork
 //   19=burnt food fallback, 20=burnt beef, 21=burnt pork, 22=burnt noodle, 23=burnt egg
+//   24=plate
 
 module station_controller (
     input  logic        clk,
@@ -30,8 +31,9 @@ module station_controller (
     output logic [4:0]  p1_item,
     output logic [4:0]  p2_item,
 
-    // Current orders, used to make the bottom-right order ports dish-specific.
+    // Current orders, used to match conveyor deliveries.
     input  logic [1:0]  order_dish [0:2],
+    input  logic [4:0]  order_timer [0:2],
 
     // Station display state
     output logic [4:0]  chop_display_items [0:2], // (4,1), (5,1), output at (6,1)
@@ -43,6 +45,12 @@ module station_controller (
     output logic [1:0]  served_dish,
     output logic [1:0]  served_slot,
     output logic        serve_event,
+
+    // Conveyor belt display state
+    output logic        belt_active,
+    output logic [4:0]  belt_item,
+    output logic [1:0]  belt_segment,
+    output logic [4:0]  belt_progress,
 
     // Sound triggers
     output logic        snd_chop,
@@ -73,6 +81,7 @@ module station_controller (
     localparam logic [4:0] ITEM_PORK_BURNT      = 5'd21;
     localparam logic [4:0] ITEM_NOODLE_BURNT    = 5'd22;
     localparam logic [4:0] ITEM_EGG_BURNT       = 5'd23;
+    localparam logic [4:0] ITEM_PLATE           = 5'd24;
 
     localparam logic [1:0] DISH_NONE       = 2'd0;
     localparam logic [1:0] DISH_BURGER     = 2'd1;
@@ -81,6 +90,7 @@ module station_controller (
     localparam logic [1:0] SLOT_NONE       = 2'd3;
 
     localparam logic [3:0] BURN_AFTER_SECONDS = 4'd10;
+    localparam logic [21:0] BELT_STEP_DELAY = 22'd2_500_000;
 
     logic [4:0] chop_item  [0:1];
     logic [2:0] chop_timer [0:1];
@@ -93,6 +103,9 @@ module station_controller (
     logic [3:0] cook_burn_timer [0:2];
     logic       cook_busy       [0:2];
     logic       cook_done       [0:2];
+
+    logic [1:0] belt_dish;
+    logic [21:0] belt_step_counter;
 
     logic p1_interact_prev, p2_interact_prev;
     logic p1_interact_pulse, p2_interact_pulse;
@@ -163,6 +176,14 @@ module station_controller (
         else if (is_adjacent(px, py, 5'd11, 4'd11) ||
                  is_adjacent(px, py, 5'd12, 4'd11))
             return ITEM_PORK_RAW;
+        else if ((py == 4'd3 && px >= 5'd13 && px <= 5'd18) ||
+                 is_adjacent(px, py, 5'd13, 4'd3) ||
+                 is_adjacent(px, py, 5'd14, 4'd3) ||
+                 is_adjacent(px, py, 5'd15, 4'd3) ||
+                 is_adjacent(px, py, 5'd16, 4'd3) ||
+                 is_adjacent(px, py, 5'd17, 4'd3) ||
+                 is_adjacent(px, py, 5'd18, 4'd3))
+            return ITEM_PLATE;
         else
             return ITEM_NONE;
     endfunction
@@ -225,7 +246,8 @@ module station_controller (
                (item == ITEM_EGG_COOKED)      ||
                (item == ITEM_RICE_RAW)        ||
                (item == ITEM_RICE_COOKED)     ||
-               (item == ITEM_PORK_COOKED);
+               (item == ITEM_PORK_COOKED)     ||
+               (item == ITEM_PLATE);
     endfunction
 
     function automatic logic [4:0] dish_to_item(input logic [1:0] dish);
@@ -264,20 +286,24 @@ module station_controller (
         return at_tile(px, py, 5'd7, 4'd1) || at_tile(px, py, 5'd6, 4'd2);
     endfunction
 
-    function automatic logic is_order_port_access(
+    function automatic logic is_belt_input_access(
         input logic [4:0] px,
-        input logic [3:0] py,
-        input integer     slot
+        input logic [3:0] py
     );
-        case (slot)
-            2'd0: return is_adjacent(px, py, 5'd16, 4'd10);
-            2'd1: return is_adjacent(px, py, 5'd17, 4'd10);
-            2'd2: return is_adjacent(px, py, 5'd18, 4'd10);
-            default: return 1'b0;
-        endcase
+        return ((py == 4'd7 || py == 4'd8) &&
+                (px >= 5'd15 && px <= 5'd17) &&
+                !(px == 5'd16 && py == 4'd8));
     endfunction
 
-    logic has_beef, has_lettuce, has_bread, has_noodle, has_egg, has_rice, has_pork;
+    function automatic logic is_assembly_drop_access(
+        input logic [4:0] px,
+        input logic [3:0] py
+    );
+        return at_tile(px, py, 5'd12, 4'd1) ||
+               at_tile(px, py, 5'd12, 4'd2);
+    endfunction
+
+    logic has_beef, has_lettuce, has_bread, has_noodle, has_egg, has_rice, has_pork, has_plate;
     logic recipe_burger, recipe_noodle, recipe_rice_bowl;
     logic output_has_space;
 
@@ -289,6 +315,7 @@ module station_controller (
         has_egg     = 0;
         has_rice    = 0;
         has_pork    = 0;
+        has_plate   = 0;
 
         for (int j = 0; j < 10; j++) begin
             if (assembly_items[j] == ITEM_BEEF_COOKED)     has_beef    = 1;
@@ -299,6 +326,7 @@ module station_controller (
             if (assembly_items[j] == ITEM_RICE_RAW ||
                 assembly_items[j] == ITEM_RICE_COOKED)     has_rice    = 1;
             if (assembly_items[j] == ITEM_PORK_COOKED)     has_pork    = 1;
+            if (assembly_items[j] == ITEM_PLATE)           has_plate   = 1;
         end
 
         output_has_space = 0;
@@ -307,9 +335,9 @@ module station_controller (
                 output_has_space = 1;
         end
 
-        recipe_burger    = has_beef && has_lettuce && has_bread && output_has_space;
-        recipe_noodle    = has_noodle && has_egg && output_has_space;
-        recipe_rice_bowl = has_rice && has_pork && output_has_space;
+        recipe_burger    = has_beef && has_lettuce && has_bread && has_plate && output_has_space;
+        recipe_noodle    = has_noodle && has_egg && has_plate && output_has_space;
+        recipe_rice_bowl = has_rice && has_pork && has_plate && output_has_space;
     end
 
     integer i;
@@ -317,11 +345,14 @@ module station_controller (
     always_ff @(posedge clk or posedge rst) begin : station_seq
         logic placed;
         logic made_dish;
-        logic took_a, took_b, took_c;
+        logic took_a, took_b, took_c, took_d;
         logic acted;
         logic output_filled;
         logic [4:0] near_item;
         logic [1:0] held_dish;
+        logic matched;
+        logic [4:0] best_timer;
+        logic [1:0] best_slot;
 
         if (rst || !game_active) begin
             for (i = 0; i < 2; i++) begin
@@ -352,6 +383,12 @@ module station_controller (
             serve_event <= 0;
             served_dish <= DISH_NONE;
             served_slot <= SLOT_NONE;
+            belt_active <= 0;
+            belt_item   <= ITEM_NONE;
+            belt_dish   <= DISH_NONE;
+            belt_segment <= 0;
+            belt_progress <= 0;
+            belt_step_counter <= 0;
             snd_chop    <= 0;
             snd_serve   <= 0;
         end else begin
@@ -360,6 +397,50 @@ module station_controller (
             served_slot <= SLOT_NONE;
             snd_chop    <= 0;
             snd_serve   <= 0;
+
+            if (belt_active) begin
+                if (belt_step_counter >= BELT_STEP_DELAY - 1) begin
+                    belt_step_counter <= 0;
+                    if (belt_progress == 5'd31) begin
+                        belt_progress <= 0;
+                        if (belt_segment == 2'd3) begin
+                            matched = 0;
+                            best_timer = 5'd31;
+                            best_slot = SLOT_NONE;
+                            for (i = 0; i < 3; i++) begin
+                                if (order_dish[i] == belt_dish &&
+                                    (!matched || order_timer[i] < best_timer)) begin
+                                    matched = 1;
+                                    best_timer = order_timer[i];
+                                    case (i)
+                                        0: best_slot = 2'd0;
+                                        1: best_slot = 2'd1;
+                                        default: best_slot = 2'd2;
+                                    endcase
+                                end
+                            end
+                            if (matched) begin
+                                serve_event <= 1;
+                                served_dish <= belt_dish;
+                                served_slot <= best_slot;
+                                snd_serve   <= 1;
+                            end
+                            belt_active <= 0;
+                            belt_item   <= ITEM_NONE;
+                            belt_dish   <= DISH_NONE;
+                            belt_segment <= 0;
+                        end else begin
+                            belt_segment <= belt_segment + 1;
+                        end
+                    end else begin
+                        belt_progress <= belt_progress + 1;
+                    end
+                end else begin
+                    belt_step_counter <= belt_step_counter + 1;
+                end
+            end else begin
+                belt_step_counter <= 0;
+            end
 
             if (tick_1hz) begin
                 output_filled = (chop_output_item != ITEM_NONE);
@@ -414,6 +495,7 @@ module station_controller (
             took_a = 0;
             took_b = 0;
             took_c = 0;
+            took_d = 0;
 
             if (recipe_burger) begin
                 for (i = 0; i < 6; i++) begin
@@ -433,6 +515,9 @@ module station_controller (
                         end else if (!took_c && assembly_items[i] == ITEM_BREAD) begin
                             assembly_items[i] <= ITEM_NONE;
                             took_c = 1;
+                        end else if (!took_d && assembly_items[i] == ITEM_PLATE) begin
+                            assembly_items[i] <= ITEM_NONE;
+                            took_d = 1;
                         end
                     end
                 end
@@ -451,6 +536,9 @@ module station_controller (
                         end else if (!took_b && assembly_items[i] == ITEM_EGG_COOKED) begin
                             assembly_items[i] <= ITEM_NONE;
                             took_b = 1;
+                        end else if (!took_c && assembly_items[i] == ITEM_PLATE) begin
+                            assembly_items[i] <= ITEM_NONE;
+                            took_c = 1;
                         end
                     end
                 end
@@ -470,6 +558,9 @@ module station_controller (
                         end else if (!took_b && assembly_items[i] == ITEM_PORK_COOKED) begin
                             assembly_items[i] <= ITEM_NONE;
                             took_b = 1;
+                        end else if (!took_c && assembly_items[i] == ITEM_PLATE) begin
+                            assembly_items[i] <= ITEM_NONE;
+                            took_c = 1;
                         end
                     end
                 end
@@ -485,18 +576,16 @@ module station_controller (
                 end
 
                 held_dish = item_to_dish(p1_item);
-                if (!acted && held_dish != DISH_NONE) begin
-                    for (i = 0; i < 3; i++) begin
-                        if (!acted && order_dish[i] == held_dish &&
-                            is_order_port_access(p1_tile_x, p1_tile_y, i)) begin
-                            serve_event <= 1;
-                            served_dish <= held_dish;
-                            served_slot <= i;
-                            p1_item     <= ITEM_NONE;
-                            snd_serve   <= 1;
-                            acted       = 1;
-                        end
-                    end
+                if (!acted && held_dish != DISH_NONE &&
+                    !belt_active && is_belt_input_access(p1_tile_x, p1_tile_y)) begin
+                    belt_active <= 1;
+                    belt_item   <= p1_item;
+                    belt_dish   <= held_dish;
+                    belt_segment <= 0;
+                    belt_progress <= 0;
+                    belt_step_counter <= 0;
+                    p1_item     <= ITEM_NONE;
+                    acted       = 1;
                 end
 
                 if (!acted && p1_item == ITEM_NONE) begin
@@ -570,24 +659,25 @@ module station_controller (
                     end
                 end
 
-                if (!acted && can_assemble_item(p1_item) && is_adjacent(p1_tile_x, p1_tile_y, 5'd13, 4'd1)) begin
+                if (!acted && can_assemble_item(p1_item) && is_assembly_drop_access(p1_tile_x, p1_tile_y)) begin
                     placed = 0;
-                    for (i = 0; i < 5; i++) begin
-                        if (!placed && assembly_items[i] == ITEM_NONE) begin
-                            assembly_items[i] <= p1_item;
-                            p1_item <= ITEM_NONE;
-                            placed = 1;
-                            acted = 1;
+                    if (p1_tile_y == 4'd1) begin
+                        for (i = 0; i < 5; i++) begin
+                            if (!placed && assembly_items[i] == ITEM_NONE) begin
+                                assembly_items[i] <= p1_item;
+                                p1_item <= ITEM_NONE;
+                                placed = 1;
+                                acted = 1;
+                            end
                         end
-                    end
-                end else if (!acted && can_assemble_item(p1_item) && is_adjacent(p1_tile_x, p1_tile_y, 5'd13, 4'd2)) begin
-                    placed = 0;
-                    for (i = 5; i < 10; i++) begin
-                        if (!placed && assembly_items[i] == ITEM_NONE) begin
-                            assembly_items[i] <= p1_item;
-                            p1_item <= ITEM_NONE;
-                            placed = 1;
-                            acted = 1;
+                    end else begin
+                        for (i = 5; i < 10; i++) begin
+                            if (!placed && assembly_items[i] == ITEM_NONE) begin
+                                assembly_items[i] <= p1_item;
+                                p1_item <= ITEM_NONE;
+                                placed = 1;
+                                acted = 1;
+                            end
                         end
                     end
                 end
@@ -603,18 +693,16 @@ module station_controller (
                 end
 
                 held_dish = item_to_dish(p2_item);
-                if (!acted && held_dish != DISH_NONE) begin
-                    for (i = 0; i < 3; i++) begin
-                        if (!acted && order_dish[i] == held_dish &&
-                            is_order_port_access(p2_tile_x, p2_tile_y, i)) begin
-                            serve_event <= 1;
-                            served_dish <= held_dish;
-                            served_slot <= i;
-                            p2_item     <= ITEM_NONE;
-                            snd_serve   <= 1;
-                            acted       = 1;
-                        end
-                    end
+                if (!acted && held_dish != DISH_NONE &&
+                    !belt_active && is_belt_input_access(p2_tile_x, p2_tile_y)) begin
+                    belt_active <= 1;
+                    belt_item   <= p2_item;
+                    belt_dish   <= held_dish;
+                    belt_segment <= 0;
+                    belt_progress <= 0;
+                    belt_step_counter <= 0;
+                    p2_item     <= ITEM_NONE;
+                    acted       = 1;
                 end
 
                 if (!acted && p2_item == ITEM_NONE) begin
@@ -688,24 +776,25 @@ module station_controller (
                     end
                 end
 
-                if (!acted && can_assemble_item(p2_item) && is_adjacent(p2_tile_x, p2_tile_y, 5'd13, 4'd1)) begin
+                if (!acted && can_assemble_item(p2_item) && is_assembly_drop_access(p2_tile_x, p2_tile_y)) begin
                     placed = 0;
-                    for (i = 0; i < 5; i++) begin
-                        if (!placed && assembly_items[i] == ITEM_NONE) begin
-                            assembly_items[i] <= p2_item;
-                            p2_item <= ITEM_NONE;
-                            placed = 1;
-                            acted = 1;
+                    if (p2_tile_y == 4'd1) begin
+                        for (i = 0; i < 5; i++) begin
+                            if (!placed && assembly_items[i] == ITEM_NONE) begin
+                                assembly_items[i] <= p2_item;
+                                p2_item <= ITEM_NONE;
+                                placed = 1;
+                                acted = 1;
+                            end
                         end
-                    end
-                end else if (!acted && can_assemble_item(p2_item) && is_adjacent(p2_tile_x, p2_tile_y, 5'd13, 4'd2)) begin
-                    placed = 0;
-                    for (i = 5; i < 10; i++) begin
-                        if (!placed && assembly_items[i] == ITEM_NONE) begin
-                            assembly_items[i] <= p2_item;
-                            p2_item <= ITEM_NONE;
-                            placed = 1;
-                            acted = 1;
+                    end else begin
+                        for (i = 5; i < 10; i++) begin
+                            if (!placed && assembly_items[i] == ITEM_NONE) begin
+                                assembly_items[i] <= p2_item;
+                                p2_item <= ITEM_NONE;
+                                placed = 1;
+                                acted = 1;
+                            end
                         end
                     end
                 end
