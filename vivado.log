@@ -1,0 +1,28 @@
+#-----------------------------------------------------------
+# Vivado v2017.4 (64-bit)
+# SW Build 2086221 on Fri Dec 15 20:55:39 MST 2017
+# IP Build 2085800 on Fri Dec 15 22:25:07 MST 2017
+# Start of session at: Thu May 28 01:13:30 2026
+# Process ID: 552
+# Current directory: C:/Users/user/OneDrive/GitHub/overcook/overcook
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent27748 C:\Users\user\OneDrive\GitHub\overcook\overcook\overcooked.xpr
+# Log file: C:/Users/user/OneDrive/GitHub/overcook/overcook/vivado.log
+# Journal file: C:/Users/user/OneDrive/GitHub/overcook/overcook\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project C:/Users/user/OneDrive/GitHub/overcook/overcook/overcooked.xpr
+INFO: [Project 1-313] Project file moved from 'C:/Users/b0968/Downloads/overcooked' since last save.
+Scanning sources...
+Finished scanning sources
+WARNING: [Project 1-509] GeneratedRun file for 'synth_1' not found
+WARNING: [Project 1-509] GeneratedRun file for 'impl_1' not found
+WARNING: [filemgmt 56-2] IPUserFilesDir: Could not find the directory 'C:/Users/user/OneDrive/GitHub/overcook/overcook/overcooked.ip_user_files', nor could it be found using path 'C:/Users/b0968/Downloads/overcooked/overcooked.ip_user_files'.
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'C:/Xilinx/Vivado/2017.4/data/ip'.
+update_compile_order -fileset sources_1
+launch_runs impl_1 -to_step write_bitstream -jobs 6
+[Thu May 28 01:14:03 2026] Launched synth_1...
+Run output will be captured here: C:/Users/user/OneDrive/GitHub/overcook/overcook/overcooked.runs/synth_1/runme.log
+[Thu May 28 01:14:03 2026] Launched impl_1...
+Run output will be captured here: C:/Users/user/OneDrive/GitHub/overcook/overcook/overcooked.runs/impl_1/runme.log

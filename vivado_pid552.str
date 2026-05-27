@@ -1,0 +1,110 @@
+/*
+
+Xilinx Vivado v2017.4 (64-bit) [Major: 2017, Minor: 4]
+SW Build: 2086221 on Fri Dec 15 20:55:39 MST 2017
+IP Build: 2085800 on Fri Dec 15 22:25:07 MST 2017
+
+Process ID: 552
+License: Customer
+
+Current time: 	Thu May 28 01:13:47 CST 2026
+Time zone: 	China Standard Time (Asia/Taipei)
+
+OS: Windows 10
+OS Version: 10.0
+OS Architecture: amd64
+Available processors (cores): 12
+
+Screen size: 1536x864
+Screen resolution (DPI): 96
+Available screens: 1
+Available disk space: 140 GB
+Default font: family=Dialog,name=Dialog,style=plain,size=12
+
+Java version: 	1.8.0_112 64-bit
+Java home: 	C:/Xilinx/Vivado/2017.4/tps/win64/jre
+JVM executable location: 	C:/Xilinx/Vivado/2017.4/tps/win64/jre/bin/java.exe
+
+User name: 	user
+User home directory: C:/Users/user
+User working directory: C:/Users/user/OneDrive/GitHub/overcook/overcook
+User country: 	TW
+User language: 	zh
+User locale: 	zh_TW
+
+RDI_BASEROOT: C:/Xilinx/Vivado
+HDI_APPROOT: C:/Xilinx/Vivado/2017.4
+RDI_DATADIR: C:/Xilinx/Vivado/2017.4/data
+RDI_BINDIR: C:/Xilinx/Vivado/2017.4/bin
+
+Vivado preferences file location: C:/Users/user/AppData/Roaming/Xilinx/Vivado/2017.4/vivado.xml
+Vivado preferences directory: C:/Users/user/AppData/Roaming/Xilinx/Vivado/2017.4/
+Vivado layouts directory: C:/Users/user/AppData/Roaming/Xilinx/Vivado/2017.4/layouts
+PlanAhead jar file location: 	C:/Xilinx/Vivado/2017.4/lib/classes/planAhead.jar
+Vivado log file location: 	C:/Users/user/OneDrive/GitHub/overcook/overcook/vivado.log
+Vivado journal file location: 	C:/Users/user/OneDrive/GitHub/overcook/overcook/vivado.jou
+Engine tmp dir: 	C:/Users/user/OneDrive/GitHub/overcook/overcook/.Xil/Vivado-552-LAPTOP-VP5TT6HP
+
+GUI allocated memory:	183 MB
+GUI max memory:		3,052 MB
+Engine allocated memory: 606 MB
+
+Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
+
+*/
+
+// TclEventType: START_GUI
+// Tcl Message: start_gui 
+// TclEventType: PROJECT_OPEN_DIALOG
+// Opening Vivado Project: C:\Users\user\OneDrive\GitHub\overcook\overcook\overcooked.xpr. Version: Vivado v2017.4 
+// bs (cj):  Open Project : addNotify
+// [GUI Memory]: 48 MB (+47374kb) [00:00:06]
+// [Engine Memory]: 487 MB (+359332kb) [00:00:06]
+// TclEventType: DEBUG_PROBE_SET_CHANGE
+// Tcl Message: open_project C:/Users/user/OneDrive/GitHub/overcook/overcook/overcooked.xpr 
+// TclEventType: MSGMGR_MOVEMSG
+// TclEventType: FILE_SET_NEW
+// TclEventType: RUN_CURRENT
+// TclEventType: PROJECT_NEW
+// Tcl Message: open_project C:/Users/user/OneDrive/GitHub/overcook/overcook/overcooked.xpr 
+// Tcl Message: INFO: [Project 1-313] Project file moved from 'C:/Users/b0968/Downloads/overcooked' since last save. 
+// Tcl Message: Scanning sources... Finished scanning sources 
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories INFO: [IP_Flow 19-1704] No user IP repositories specified 
+// TclEventType: PROJECT_NEW
+// [GUI Memory]: 72 MB (+23111kb) [00:00:08]
+// [Engine Memory]: 539 MB (+28811kb) [00:00:08]
+// [GUI Memory]: 77 MB (+1957kb) [00:00:09]
+// [Engine Memory]: 568 MB (+2094kb) [00:00:09]
+// [GUI Memory]: 90 MB (+9152kb) [00:00:09]
+// Tcl Message: INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'C:/Xilinx/Vivado/2017.4/data/ip'. 
+// [GUI Memory]: 96 MB (+1743kb) [00:00:10]
+// [Engine Memory]: 618 MB (+22382kb) [00:00:10]
+// Project name: overcooked; location: C:/Users/user/OneDrive/GitHub/overcook/overcook; part: xc7a35tcpg236-1
+// HMemoryUtils.trashcanNow. Engine heap size: 635 MB. GUI used memory: 37 MB. Current time: 5/28/26 1:13:48 AM CST
+dismissDialog("Open Project"); // bs (cj)
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+// Tcl Message: update_compile_order -fileset sources_1 
+// Elapsed time: 12 seconds
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Program and Debug, Generate Bitstream]", 20, false); // u (O, cj)
+// Run Command: PAResourceCommand.PACommandNames_RUN_BITGEN
+// x (cj): No Implementation Results Available: addNotify
+selectButton(RDIResource.BaseDialog_YES, "Yes"); // a (x)
+// bs (cj):  Resetting Runs : addNotify
+// f (cj): Launch Runs: addNotify
+dismissDialog("No Implementation Results Available"); // x (cj)
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a (f)
+// [Engine Memory]: 649 MB (+497kb) [00:00:24]
+dismissDialog("Launch Runs"); // f (cj)
+// TclEventType: RUN_LAUNCH
+// Tcl Message: launch_runs impl_1 -to_step write_bitstream -jobs 6 
+// TclEventType: RUN_LAUNCH
+// bs (cj):  Generate Bitstream : addNotify
+// TclEventType: RUN_MODIFY
+// Tcl Message: [Thu May 28 01:14:03 2026] Launched synth_1... Run output will be captured here: C:/Users/user/OneDrive/GitHub/overcook/overcook/overcooked.runs/synth_1/runme.log [Thu May 28 01:14:03 2026] Launched impl_1... Run output will be captured here: C:/Users/user/OneDrive/GitHub/overcook/overcook/overcooked.runs/impl_1/runme.log 
+dismissDialog("Generate Bitstream"); // bs (cj)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
