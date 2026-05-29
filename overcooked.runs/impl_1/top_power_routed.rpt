@@ -1,8 +1,8 @@
 Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
 -------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2017.4 (win64) Build 2086221 Fri Dec 15 20:55:39 MST 2017
-| Date             : Thu May 28 01:22:14 2026
-| Host             : LAPTOP-VP5TT6HP running 64-bit major release  (build 9200)
+| Date             : Sat May 30 01:18:48 2026
+| Host             : LAPTOP-JU1L00C7 running 64-bit major release  (build 9200)
 | Command          : report_power -file top_power_routed.rpt -pb top_power_summary_routed.pb -rpx top_power_routed.rpx
 | Design           : top
 | Device           : xc7a35tcpg236-1
@@ -30,10 +30,10 @@ Table of Contents
 ----------
 
 +--------------------------+--------------+
-| Total On-Chip Power (W)  | 0.104        |
+| Total On-Chip Power (W)  | 0.105        |
 | Design Power Budget (W)  | Unspecified* |
 | Power Budget Margin (W)  | NA           |
-| Dynamic (W)              | 0.032        |
+| Dynamic (W)              | 0.033        |
 | Device Static (W)        | 0.072        |
 | Effective TJA (C/W)      | 5.0          |
 | Max Ambient (C)          | 84.5         |
@@ -53,16 +53,16 @@ Table of Contents
 | On-Chip        | Power (W) | Used     | Available | Utilization (%) |
 +----------------+-----------+----------+-----------+-----------------+
 | Clocks         |     0.004 |        3 |       --- |             --- |
-| Slice Logic    |     0.006 |    19375 |       --- |             --- |
-|   LUT as Logic |     0.005 |    13019 |     20800 |           62.59 |
+| Slice Logic    |     0.006 |    20671 |       --- |             --- |
+|   LUT as Logic |     0.006 |    13891 |     20800 |           66.78 |
 |   CARRY4       |    <0.001 |       89 |      8150 |            1.09 |
-|   F7/F8 Muxes  |    <0.001 |     5109 |     32600 |           15.67 |
-|   Register     |    <0.001 |      525 |     41600 |            1.26 |
+|   F7/F8 Muxes  |    <0.001 |     5530 |     32600 |           16.96 |
+|   Register     |    <0.001 |      523 |     41600 |            1.26 |
 |   Others       |     0.000 |       19 |       --- |             --- |
-| Signals        |     0.004 |     8657 |       --- |             --- |
+| Signals        |     0.005 |     9134 |       --- |             --- |
 | I/O            |     0.018 |       50 |       106 |           47.17 |
 | Static Power   |     0.072 |          |           |                 |
-| Total          |     0.104 |          |           |                 |
+| Total          |     0.105 |          |           |                 |
 +----------------+-----------+----------+-----------+-----------------+
 
 
@@ -72,7 +72,7 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+
 | Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) |
 +-----------+-------------+-----------+-------------+------------+
-| Vccint    |       1.000 |     0.023 |       0.014 |      0.010 |
+| Vccint    |       1.000 |     0.025 |       0.015 |      0.010 |
 | Vccaux    |       1.800 |     0.013 |       0.001 |      0.013 |
 | Vcco33    |       3.300 |     0.006 |       0.005 |      0.001 |
 | Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |
@@ -141,21 +141,21 @@ Table of Contents
 +--------------------+-----------+
 | Name               | Power (W) |
 +--------------------+-----------+
-| top                |     0.032 |
+| top                |     0.033 |
 |   u_7seg           |    <0.001 |
 |   u_buzzer         |     0.001 |
 |   u_keys           |    <0.001 |
 |   u_orders         |    <0.001 |
 |   u_p1             |    <0.001 |
-|   u_p2             |    <0.001 |
+|   u_p2             |     0.001 |
 |   u_ps2            |    <0.001 |
-|   u_render         |     0.003 |
+|   u_render         |     0.004 |
 |     u_food_overlay |    <0.001 |
-|     u_food_sprites |     0.002 |
+|     u_food_sprites |     0.003 |
 |   u_score          |    <0.001 |
-|   u_stations       |     0.004 |
+|   u_stations       |     0.003 |
 |   u_timer          |    <0.001 |
-|   u_vga            |    <0.001 |
+|   u_vga            |     0.004 |
 +--------------------+-----------+
 
 

@@ -1,7 +1,7 @@
 // Top Level Module - Overcooked on Basys3
 // Connects all submodules
 //???????????
-
+//e04
 module top (
     input  logic        clk,            // 100MHz
     input  logic        btnC,           // start
@@ -183,6 +183,7 @@ module top (
     logic [4:0] cook_display_items [0:2];
     logic [4:0] assembly_items  [0:9];
     logic [1:0] assembly_dishes [0:5];
+    logic       assembly_plates [0:5];
     logic [1:0] served_dish;
     logic [1:0] served_slot;
     logic       serve_event;
@@ -207,6 +208,7 @@ module top (
         .cook_display_items(cook_display_items),
         .assembly_items(assembly_items),
         .assembly_dishes(assembly_dishes),
+        .assembly_plates(assembly_plates),
         .served_dish(served_dish), .served_slot(served_slot), .serve_event(serve_event),
         .belt_active(belt_active),
         .belt_item(belt_item),
@@ -318,6 +320,7 @@ module top (
         .cook_display_items(cook_display_items),
         .assembly_items(assembly_items),
         .assembly_dishes(assembly_dishes),
+        .assembly_plates(assembly_plates),
         .belt_active(belt_active),
         .belt_item(belt_item),
         .belt_segment(belt_segment),

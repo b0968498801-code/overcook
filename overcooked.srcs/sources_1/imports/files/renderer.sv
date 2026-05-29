@@ -26,6 +26,7 @@ module renderer (
     input  logic [4:0]  cook_display_items [0:2],
     input  logic [4:0]  assembly_items  [0:9],
     input  logic [1:0]  assembly_dishes [0:5],
+    input  logic        assembly_plates [0:5],
 
     // Conveyor belt state
     input  logic        belt_active,
@@ -97,6 +98,7 @@ module renderer (
     localparam T_TRASH       = 4'd14;
     localparam T_ORDER       = 4'd15;
     localparam logic [4:0] T_BELT = 5'd16;
+    localparam logic [4:0] T_SRC_PLATE = 5'd17;
 
     localparam logic [9:0] UI_BAR_H     = 10'd32;
     localparam logic [9:0] TILE_PIX     = 10'd32;
@@ -155,6 +157,8 @@ module renderer (
             tilemap[3][c] = T_ASM_OUT;
 
         tilemap[6][8] = T_TRASH;
+        tilemap[5][18] = T_SRC_PLATE;
+        tilemap[6][18] = T_SRC_PLATE;
         tilemap[8][16]  = T_BELT;
         tilemap[9][16]  = T_BELT;
         tilemap[10][16] = T_BELT;
@@ -229,9 +233,10 @@ module renderer (
             T_ASM_IN:      tile_color = 12'hCB8;
             T_ASM_STORE:   tile_color = 12'hDCA;
             T_ASM_OUT:     tile_color = 12'hEC9;
-            T_TRASH:       tile_color = 12'h111;
+            T_TRASH:       tile_color = floor_color;
             T_ORDER:       tile_color = 12'h08F;
             T_BELT:        tile_color = 12'h444;
+            T_SRC_PLATE:   tile_color = 12'hBDF;
             default:       tile_color = 12'h888;
         endcase
     end
@@ -267,12 +272,14 @@ module renderer (
 
     logic [4:0] table_item;
     logic [1:0] table_dish;
+    logic       table_plate;
     logic [4:0] station_item;
     logic [4:0] held_tile_item;
 
     always_comb begin
         table_item = ITEM_NONE;
         table_dish = DISH_NONE;
+        table_plate = 1'b0;
         station_item = ITEM_NONE;
         held_tile_item = ITEM_NONE;
 
@@ -281,8 +288,10 @@ module renderer (
         else if (in_map && tile_row == 4'd2 && tile_col >= 5'd14 && tile_col <= 5'd18)
             table_item = assembly_items[5 + (tile_col - 5'd14)];
 
-        if (in_map && tile_row == 4'd3 && tile_col >= 5'd13 && tile_col <= 5'd18)
+        if (in_map && tile_row == 4'd3 && tile_col >= 5'd13 && tile_col <= 5'd18) begin
             table_dish = assembly_dishes[tile_col - 5'd13];
+            table_plate = assembly_plates[tile_col - 5'd13];
+        end
 
         if (in_map && tile_row == 4'd1 && tile_col >= 5'd4 && tile_col <= 5'd6)
             station_item = chop_display_items[tile_col - 5'd4];
@@ -300,9 +309,6 @@ module renderer (
     wire station_item_pixel = (station_item != ITEM_NONE) && in_table_glyph && in_map;
     wire table_item_pixel = (table_item != ITEM_NONE) && in_table_glyph && in_map;
     wire table_dish_pixel = (table_dish != DISH_NONE) && in_table_glyph && in_map;
-    wire plate_source_tile = in_map && (tile_row == 4'd3) &&
-                             (tile_col >= 5'd13) && (tile_col <= 5'd18);
-
     wire is_chop_tile = (curr_tile == T_CHOP);
     wire is_cook_tile = (curr_tile == T_COOK);
     wire is_asm_tile  = (curr_tile == T_ASM_IN) ||
@@ -390,19 +396,55 @@ module renderer (
         end
     end
 
+    wire trash_tile = in_map && (curr_tile == T_TRASH);
+    wire [9:0] barrel_sprite_addr = {py_in_tile, 5'b0} + px_in_tile;
+    logic [11:0] barrel_sprite_color;
+
+    barrel_sprite_rom u_barrel_sprite (
+        .addr(barrel_sprite_addr),
+        .data(barrel_sprite_color)
+    );
+
+    wire barrel_sprite_pixel = trash_tile &&
+                               (barrel_sprite_color != SPRITE_TRANSPARENT);
+
     wire is_belt_tile = (curr_tile == T_BELT);
+    wire belt_corner_tile = is_belt_tile && (tile_col == 5'd16) && (tile_row == 4'd10);
     wire belt_down_dir = is_belt_tile && (tile_col == 5'd16) && (tile_row < 4'd10);
-    wire belt_right_dir = is_belt_tile && !belt_down_dir;
-    wire belt_track = is_belt_tile &&
-                      (belt_down_dir ?
-                       ((px_in_tile >= 5'd7) && (px_in_tile <= 5'd24)) :
-                       ((py_in_tile >= 5'd7) && (py_in_tile <= 5'd24)));
-    wire belt_edge = belt_track &&
-                     (belt_down_dir ?
-                      ((px_in_tile == 5'd7) || (px_in_tile == 5'd24)) :
-                      ((py_in_tile == 5'd7) || (py_in_tile == 5'd24)));
+    wire belt_right_dir = is_belt_tile && !belt_down_dir && !belt_corner_tile;
+    wire belt_straight_track = is_belt_tile &&
+                               (belt_down_dir ?
+                                ((px_in_tile >= 5'd7) && (px_in_tile <= 5'd24)) :
+                                ((py_in_tile >= 5'd7) && (py_in_tile <= 5'd24)));
+    wire belt_corner_track = belt_corner_tile &&
+                             (((px_in_tile >= 5'd7) && (px_in_tile <= 5'd24) &&
+                               (py_in_tile <= 5'd16)) ||
+                              ((py_in_tile >= 5'd7) && (py_in_tile <= 5'd24) &&
+                               (px_in_tile >= 5'd16)) ||
+                              ((px_in_tile >= 5'd12) && (px_in_tile <= 5'd24) &&
+                               (py_in_tile >= 5'd12) && (py_in_tile <= 5'd24)));
+    wire belt_track = belt_corner_tile ? belt_corner_track : belt_straight_track;
+    wire belt_straight_edge = belt_straight_track &&
+                              (belt_down_dir ?
+                               ((px_in_tile == 5'd7) || (px_in_tile == 5'd24)) :
+                               ((py_in_tile == 5'd7) || (py_in_tile == 5'd24)));
+    wire belt_corner_edge = belt_corner_track &&
+                            ((px_in_tile == 5'd7 && py_in_tile <= 5'd16) ||
+                             (py_in_tile == 5'd7 && px_in_tile >= 5'd16) ||
+                             (px_in_tile == 5'd24) ||
+                             (py_in_tile == 5'd24 && px_in_tile >= 5'd16) ||
+                             (px_in_tile == 5'd16 && py_in_tile >= 5'd16) ||
+                             (py_in_tile == 5'd16 && px_in_tile <= 5'd16));
+    wire belt_edge = belt_corner_tile ? belt_corner_edge : belt_straight_edge;
+    wire [5:0] belt_corner_sum = {1'b0, px_in_tile} + {1'b0, py_in_tile};
+    wire belt_corner_arrow = belt_corner_tile &&
+                             (px_in_tile >= 5'd15) && (px_in_tile <= 5'd24) &&
+                             (py_in_tile >= 5'd14) && (py_in_tile <= 5'd23) &&
+                             (belt_corner_sum >= 6'd35) &&
+                             (belt_corner_sum <= 6'd42);
     wire belt_arrow = is_belt_tile &&
-                      ((belt_down_dir &&
+                      (belt_corner_arrow ||
+                       (belt_down_dir &&
                         (py_in_tile >= 5'd15) && (py_in_tile <= 5'd23) &&
                         (px_in_tile >= (5'd16 - (py_in_tile - 5'd15))) &&
                         (px_in_tile <= (5'd16 + (py_in_tile - 5'd15)))) ||
@@ -623,8 +665,39 @@ module renderer (
             T_SRC_EGG:     return FOOD_SPR_EGG;
             T_SRC_RICE:    return FOOD_SPR_RICE_BOWL;
             T_SRC_PORK:    return FOOD_SPR_PIG;
+            T_SRC_PLATE:   return FOOD_SPR_PLATE;
             default:       return FOOD_SPR_NONE;
         endcase
+    endfunction
+
+    function automatic logic is_dish_item(input logic [4:0] item);
+        return (item == ITEM_DISH_BURGER) ||
+               (item == ITEM_DISH_NOODLE) ||
+               (item == ITEM_DISH_RICE_BOWL);
+    endfunction
+
+    function automatic logic plate_base_pixel(
+        input logic [4:0] sx,
+        input logic [4:0] sy
+    );
+        begin
+            plate_base_pixel =
+                (sy >= 5'd9 && sy <= 5'd25 && sx >= 5'd3 && sx <= 5'd28) &&
+                !((sy == 5'd9 || sy == 5'd25) && (sx < 5'd8 || sx > 5'd23)) &&
+                !((sy == 5'd10 || sy == 5'd24) && (sx < 5'd5 || sx > 5'd26));
+        end
+    endfunction
+
+    function automatic logic [11:0] plate_base_color(
+        input logic [4:0] sx,
+        input logic [4:0] sy
+    );
+        begin
+            if (sy <= 5'd11 || sy >= 5'd23 || sx <= 5'd5 || sx >= 5'd26)
+                plate_base_color = 12'hCCC;
+            else
+                plate_base_color = 12'hFFF;
+        end
     endfunction
 
     wire held_item_fallback_pixel = (held_tile_item != ITEM_NONE) && in_table_glyph &&
@@ -632,16 +705,20 @@ module renderer (
 
     logic [4:0] food_sprite_sel;
     logic [4:0] food_overlay_sel;
+    logic       food_sprite_plated;
     always_comb begin
         food_sprite_sel = FOOD_SPR_NONE;
         food_overlay_sel = FOOD_SPR_NONE;
+        food_sprite_plated = 1'b0;
 
-        if (p1_item_tile_match) begin
+        if (p1_item_tile_match && p1_item != ITEM_NONE) begin
             food_sprite_sel = food_sprite_for_item(p1_item);
+            food_sprite_plated = is_dish_item(p1_item);
             if (is_burnt_item(p1_item))
                 food_overlay_sel = FOOD_SPR_SMOKE_FIRE;
-        end else if (p2_item_tile_match) begin
+        end else if (p2_item_tile_match && p2_item != ITEM_NONE) begin
             food_sprite_sel = food_sprite_for_item(p2_item);
+            food_sprite_plated = is_dish_item(p2_item);
             if (is_burnt_item(p2_item))
                 food_overlay_sel = FOOD_SPR_SMOKE_FIRE;
         end else if (station_item != ITEM_NONE) begin
@@ -654,10 +731,11 @@ module renderer (
                 food_overlay_sel = FOOD_SPR_SMOKE_FIRE;
         end else if (table_dish != DISH_NONE) begin
             food_sprite_sel = food_sprite_for_dish(table_dish);
+            food_sprite_plated = 1'b1;
+        end else if (table_plate) begin
+            food_sprite_sel = FOOD_SPR_PLATE;
         end else if (order_port_dish != DISH_NONE) begin
             food_sprite_sel = food_sprite_for_dish(order_port_dish);
-        end else if (plate_source_tile) begin
-            food_sprite_sel = FOOD_SPR_PLATE;
         end else begin
             food_sprite_sel = food_sprite_for_source(curr_tile);
         end
@@ -669,13 +747,29 @@ module renderer (
                                 (food_sprite_sel != FOOD_SPR_CABBAGE_BOWL) &&
                                 (food_sprite_sel != FOOD_SPR_PLATE);
     wire food_sprite_48_y_valid = (py_in_tile >= 5'd4) && (py_in_tile <= 5'd27);
+    wire food_sprite_plated_area = food_sprite_plated &&
+                                   (px_in_tile >= 5'd6) && (px_in_tile <= 5'd25) &&
+                                   (py_in_tile >= 5'd8) && (py_in_tile <= 5'd23);
     wire food_sprite_area = (food_sprite_sel != FOOD_SPR_NONE) &&
-                            (!food_sprite_is_64x48 || food_sprite_48_y_valid);
-    wire [5:0] food_sprite_x = {px_in_tile, 1'b0} + 6'd1;
+                            (food_sprite_plated ? food_sprite_plated_area :
+                             (!food_sprite_is_64x48 || food_sprite_48_y_valid));
+    wire [4:0] food_sprite_plated_x_base = px_in_tile - 5'd6;
+    wire [4:0] food_sprite_plated_y_base = py_in_tile - 5'd8;
+    wire [5:0] food_sprite_plated_x = ({1'b0, food_sprite_plated_x_base} << 1) +
+                                      {1'b0, food_sprite_plated_x_base} + 6'd2;
+    wire [5:0] food_sprite_plated_y = ({1'b0, food_sprite_plated_y_base} << 1) +
+                                      {1'b0, food_sprite_plated_y_base} + 6'd1;
+    wire [5:0] food_sprite_x = food_sprite_plated ?
+                               food_sprite_plated_x :
+                               ({px_in_tile, 1'b0} + 6'd1);
     wire [4:0] food_sprite_48_y_base = food_sprite_48_y_valid ? (py_in_tile - 5'd4) : 5'd0;
     wire [5:0] food_sprite_y = food_sprite_is_64x48 ?
-                               ({food_sprite_48_y_base, 1'b0} + 6'd1) :
-                               ({py_in_tile, 1'b0} + 6'd1);
+                               (food_sprite_plated ?
+                                food_sprite_plated_y :
+                                ({food_sprite_48_y_base, 1'b0} + 6'd1)) :
+                               (food_sprite_plated ?
+                                food_sprite_plated_y :
+                                ({py_in_tile, 1'b0} + 6'd1));
     wire [11:0] food_sprite_addr = {food_sprite_y, 6'b0} + food_sprite_x;
     logic [11:0] food_overlay_color;
 
@@ -687,6 +781,8 @@ module renderer (
 
     wire food_overlay_pixel = in_map && food_sprite_area &&
                               (food_overlay_color != SPRITE_TRANSPARENT);
+    wire map_plated_plate_pixel = in_map && food_sprite_plated &&
+                                  plate_base_pixel(px_in_tile, py_in_tile);
 
     logic [9:0] belt_item_x;
     logic [9:0] belt_item_y;
@@ -718,20 +814,39 @@ module renderer (
     wire [4:0] belt_rel_x = belt_item_area ? scale24_to32(pixel_x - belt_item_x) : 5'd0;
     wire [4:0] belt_rel_y = belt_item_area ? scale24_to32(pixel_y - belt_item_y) : 5'd0;
     wire [4:0] belt_sprite_sel = food_sprite_for_item(belt_item);
+    wire belt_sprite_plated = is_dish_item(belt_item);
     wire belt_sprite_is_64x48 = (belt_sprite_sel != FOOD_SPR_NONE) &&
                                 (belt_sprite_sel != FOOD_SPR_COW) &&
                                 (belt_sprite_sel != FOOD_SPR_BREAD) &&
                                 (belt_sprite_sel != FOOD_SPR_CABBAGE_BOWL) &&
                                 (belt_sprite_sel != FOOD_SPR_PLATE);
     wire belt_sprite_48_y_valid = (belt_rel_y >= 5'd4) && (belt_rel_y <= 5'd27);
+    wire belt_sprite_plated_area = belt_sprite_plated &&
+                                   (belt_rel_x >= 5'd6) && (belt_rel_x <= 5'd25) &&
+                                   (belt_rel_y >= 5'd8) && (belt_rel_y <= 5'd23);
     wire belt_sprite_area = belt_item_area &&
-                            (!belt_sprite_is_64x48 || belt_sprite_48_y_valid);
-    wire [5:0] belt_sprite_x = {belt_rel_x, 1'b0} + 6'd1;
+                            (belt_sprite_plated ? belt_sprite_plated_area :
+                             (!belt_sprite_is_64x48 || belt_sprite_48_y_valid));
+    wire [4:0] belt_sprite_plated_x_base = belt_rel_x - 5'd6;
+    wire [4:0] belt_sprite_plated_y_base = belt_rel_y - 5'd8;
+    wire [5:0] belt_sprite_plated_x = ({1'b0, belt_sprite_plated_x_base} << 1) +
+                                      {1'b0, belt_sprite_plated_x_base} + 6'd2;
+    wire [5:0] belt_sprite_plated_y = ({1'b0, belt_sprite_plated_y_base} << 1) +
+                                      {1'b0, belt_sprite_plated_y_base} + 6'd1;
+    wire [5:0] belt_sprite_x = belt_sprite_plated ?
+                               belt_sprite_plated_x :
+                               ({belt_rel_x, 1'b0} + 6'd1);
     wire [4:0] belt_sprite_48_y_base = belt_sprite_48_y_valid ? (belt_rel_y - 5'd4) : 5'd0;
     wire [5:0] belt_sprite_y = belt_sprite_is_64x48 ?
-                               ({belt_sprite_48_y_base, 1'b0} + 6'd1) :
-                               ({belt_rel_y, 1'b0} + 6'd1);
+                               (belt_sprite_plated ?
+                                belt_sprite_plated_y :
+                                ({belt_sprite_48_y_base, 1'b0} + 6'd1)) :
+                               (belt_sprite_plated ?
+                                belt_sprite_plated_y :
+                                ({belt_rel_y, 1'b0} + 6'd1));
     wire [11:0] belt_sprite_addr = {belt_sprite_y, 6'b0} + belt_sprite_x;
+    wire belt_plated_plate_pixel = belt_item_area && belt_sprite_plated &&
+                                   plate_base_pixel(belt_rel_x, belt_rel_y);
     logic [1:0] ui_order_dish;
     logic [4:0] ui_order_timer;
 
@@ -825,16 +940,19 @@ module renderer (
             if (p1_pixel)             pixel_color = p1_sprite_color;
             else if (p2_pixel)        pixel_color = p2_sprite_color;
             else if (belt_sprite_pixel) pixel_color = scene_food_color;
+            else if (belt_plated_plate_pixel) pixel_color = plate_base_color(belt_rel_x, belt_rel_y);
             else if (food_overlay_pixel) pixel_color = food_overlay_color;
             else if (food_sprite_pixel) pixel_color = scene_food_color;
+            else if (map_plated_plate_pixel) pixel_color = plate_base_color(px_in_tile, py_in_tile);
             else if (held_item_fallback_pixel) pixel_color = item_color(held_tile_item);
             else if (order_port_pixel) pixel_color = (order_port_timer <= 5'd5 && pixel_x[3]) ? 12'hF00 : dish_color(order_port_dish);
             else if (station_item_pixel) pixel_color = item_color(station_item);
             else if (table_item_pixel) pixel_color = item_color(table_item);
             else if (table_dish_pixel) pixel_color = dish_color(table_dish);
+            else if (barrel_sprite_pixel) pixel_color = barrel_sprite_color;
             else if (station_detail_pixel) pixel_color = station_detail_color;
             else if (belt_detail_pixel) pixel_color = belt_detail_color;
-            else if (tile_border && curr_tile != T_FLOOR) pixel_color = 12'h222;
+            else if (tile_border && curr_tile != T_FLOOR && curr_tile != T_TRASH) pixel_color = 12'h222;
             else                      pixel_color = tile_color;
         end else begin
             pixel_color = 12'h000;
@@ -844,6 +962,24 @@ module renderer (
     assign vga_r = pixel_color[11:8];
     assign vga_g = pixel_color[7:4];
     assign vga_b = pixel_color[3:0];
+
+endmodule
+
+// 32x32 RGB444 trash bin sprite, generated from barrel_128x178_rgb444.coe.
+module barrel_sprite_rom (
+    input  logic [9:0]  addr,
+    output logic [11:0] data
+);
+
+    (* rom_style = "distributed" *) logic [11:0] barrel [0:1023];
+
+    initial begin
+`include "barrel_sprite_init.vh"
+    end
+
+    always_comb begin
+        data = barrel[addr];
+    end
 
 endmodule
 
